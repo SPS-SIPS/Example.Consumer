@@ -1,0 +1,6 @@
+@SIPS.Example.Consumer_HostAddress = http://localhost:5025
+
+GET {{SIPS.Example.Consumer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
