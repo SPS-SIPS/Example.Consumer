@@ -13,13 +13,13 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
     {
         if (!context.HttpContext.Request.Headers.TryGetValue(ApiKeyHeaderName, out var extractedApiKey))
         {
-            context.Result = new UnauthorizedObjectResult("API Key was not provided.");
+            context.Result = new UnauthorizedObjectResult(new { error = "API Key was not provided." });
             return;
         }
 
         if (!context.HttpContext.Request.Headers.TryGetValue(ApiSecretHeaderName, out var extractedApiSecret))
         {
-            context.Result = new UnauthorizedObjectResult("API Secret was not provided.");
+            context.Result = new UnauthorizedObjectResult(new { error = "API Secret was not provided." });
             return;
         }
 
@@ -31,13 +31,13 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
         // if keys are defined in configuration, we validate
         if (!string.IsNullOrEmpty(apiKey) && !apiKey.Equals(extractedApiKey))
         {
-            context.Result = new UnauthorizedObjectResult("Unauthorized client.");
+            context.Result = new UnauthorizedObjectResult(new { error = "Unauthorized client." });
             return;
         }
 
         if (!string.IsNullOrEmpty(apiSecret) && !apiSecret.Equals(extractedApiSecret))
         {
-            context.Result = new UnauthorizedObjectResult("Unauthorized client.");
+            context.Result = new UnauthorizedObjectResult(new { error = "Unauthorized client." });
             return;
         }
 
