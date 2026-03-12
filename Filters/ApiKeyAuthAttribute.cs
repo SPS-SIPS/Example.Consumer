@@ -6,8 +6,8 @@ namespace SIPS.Example.Consumer.Filters;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
 {
-    private const string ApiKeyHeaderName = "API_Key";
-    private const string ApiSecretHeaderName = "API_Secret";
+    private const string ApiKeyHeaderName = "ApiKey";
+    private const string ApiSecretHeaderName = "ApiSecret";
 
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
