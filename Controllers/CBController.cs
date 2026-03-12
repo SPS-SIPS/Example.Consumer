@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SIPS.Example.Consumer.Enums;
+using SIPS.Example.Consumer.Filters;
 using SIPS.Example.Consumer.Models;
 using SIPS.Example.Consumer.Models.CB;
 using SIPS.Example.Consumer.Models.DB;
@@ -9,6 +10,7 @@ using SIPS.Example.Consumer.Services;
 namespace SIPS.Example.Consumer.Controllers;
 
 [ApiController]
+[ApiKeyAuth]
 [Route("api/[controller]")]
 public class CBController(ILogger<CBController> logger, AppDbContext broker) : ControllerBase
 {
@@ -190,7 +192,10 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
     [HttpPost("Transfer")]
     public async Task<IActionResult> Transfer([FromBody] TransferRequest request, CancellationToken ct)
     {
-        _logger.LogInformation("POST /api/CB/Transfer called with body: {Request}", System.Text.Json.JsonSerializer.Serialize(request));
+        var idempotencyKey = Request.Headers["X-Idempotency-Key"].FirstOrDefault();
+        var transactionIdHeader = Request.Headers["X-Transaction-Id"].FirstOrDefault();
+        _logger.LogInformation("POST /api/CB/Transfer called with IdempotencyKey: {IdempotencyKey}, TransactionId: {TxIdHeader}, Body: {Request}", idempotencyKey, transactionIdHeader, System.Text.Json.JsonSerializer.Serialize(request));
+        
         var response = new TransferResponse
         {
             TxId = request.TxId,
@@ -203,11 +208,14 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
 
         if (txn is not null)
         {
-            return Ok(new StatusResponse
+            return Ok(new TransferResponse
             {
                 Status = txn.Status.Id,
                 Reason = "DUPL",
-                AdditionalInfo = "Transaction already processed"
+                AdditionalInfo = "Transaction already processed",
+                TxId = txn.TransactionIdentification,
+                EndToEndId = txn.EndToEndIdentification,
+                AcceptanceDate = txn.AcceptanceDateTime.DateTime
             });
         }
 
@@ -337,7 +345,7 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
             }
             else
             {
-                txn.Status = Enumeration<string>.FromId<TransactionStatus>(request.Status);
+                txn.Status = Enumeration<string>.FromId<TransactionStatus>(request.Status!);
                 await _broker.SaveChangesAsync(ct);
                 _logger.LogInformation("Transaction {TxId} confirmed with status {Status}", txn.TransactionIdentification, txn.Status.Name);
                 response.Status = txn.Status.Id;
