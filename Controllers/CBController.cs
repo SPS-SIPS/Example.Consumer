@@ -185,7 +185,7 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error verifying account");
-            return Ok(new StatusResponse { Status = "RJCT", Reason = "ERRR", AdditionalInfo = "Error verifying account" });
+            return Ok(new StatusResponse { Status = "RJCT", Reason = "MS03", AdditionalInfo = "Error verifying account" });
         }
     }
 
@@ -235,10 +235,10 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
 
             var toAccount = await query.FirstOrDefaultAsync(ct);
             if (toAccount is null)
-                return NotFound(new TransferResponse { Status = "RJCT", Reason = "MISS", AdditionalInfo = "Creditor account not found" });
+                return NotFound(new TransferResponse { Status = "RJCT", Reason = "AC01", AdditionalInfo = "Creditor account not found" });
 
             if (!toAccount.Active)
-                return Ok(new TransferResponse { Status = "RJCT", Reason = "AC01", AdditionalInfo = "Creditor account is not active" });
+                return Ok(new TransferResponse { Status = "RJCT", Reason = "AC06", AdditionalInfo = "Creditor account is not active" });
 
             toAccount.Balance += request.Amount;
             response.Status = "ACSC";
@@ -294,7 +294,7 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error transferring funds");
-            return BadRequest(new TransferResponse { Status = "RJCT", Reason = "ERRR", AdditionalInfo = "Error receiving funds" });
+            return BadRequest(new TransferResponse { Status = "RJCT", Reason = "MS03", AdditionalInfo = "Error receiving funds" });
         }
     }
 
@@ -322,7 +322,7 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error transferring funds");
-            return BadRequest(new ReturnResponse { Status = "RJCT", Reason = "ERRR", AdditionalInfo = "Error receiving funds" });
+            return BadRequest(new ReturnResponse { Status = "RJCT", Reason = "MS03", AdditionalInfo = "Error receiving funds" });
         }
     }
 
