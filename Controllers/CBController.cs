@@ -235,7 +235,7 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
 
             var toAccount = await query.FirstOrDefaultAsync(ct);
             if (toAccount is null)
-                return NotFound(new TransferResponse { Status = "RJCT", Reason = "AC01", AdditionalInfo = "Creditor account not found" });
+                return Ok(new TransferResponse { Status = "RJCT", Reason = "AC01", AdditionalInfo = "Creditor account not found" });
 
             if (!toAccount.Active)
                 return Ok(new TransferResponse { Status = "RJCT", Reason = "AC06", AdditionalInfo = "Creditor account is not active" });
