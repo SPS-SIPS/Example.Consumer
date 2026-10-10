@@ -22,10 +22,10 @@ public class DbPersistenceService(string filePath)
                 CreDt = tx.CreDt,
                 CreDtTm = tx.CreDtTm,
                 NbOfTxs = tx.NbOfTxs,
-                SettlementMethod = tx.SettlementMethod.Id,
+                SettlementMethod = tx.SettlementMethod,
                 ClearingSystem = tx.ClearingSystem,
                 PaymentTypeInformation = tx.PaymentTypeInformation,
-                PaymentTypeInformationCategoryPurpose = tx.PaymentTypeInformationCategoryPurpose.Id,
+                PaymentTypeInformationCategoryPurpose = tx.PaymentTypeInformationCategoryPurpose,
                 InstructingAgent = tx.InstructingAgent,
                 InstructedAgent = tx.InstructedAgent,
                 EndToEndIdentification = tx.EndToEndIdentification,
@@ -50,7 +50,7 @@ public class DbPersistenceService(string filePath)
                 RemittanceInformationStructuredType = tx.RemittanceInformationStructuredType,
                 RemittanceInformationStructuredNumber = tx.RemittanceInformationStructuredNumber,
                 RemittanceInformationUnstructured = tx.RemittanceInformationUnstructured,
-                Status = tx.Status.Id
+                Status = tx.Status
             }).ToList(),
             Accounts = db.Accounts.Select(acc => new AccountDto
             {
@@ -88,10 +88,10 @@ public class DbPersistenceService(string filePath)
                     CreDt = dto.CreDt,
                     CreDtTm = dto.CreDtTm,
                     NbOfTxs = dto.NbOfTxs,
-                    SettlementMethod = Enumeration<string>.FromId<SettlementMethods>(dto.SettlementMethod),
+                    SettlementMethod = dto.SettlementMethod,
                     ClearingSystem = dto.ClearingSystem,
                     PaymentTypeInformation = dto.PaymentTypeInformation,
-                    PaymentTypeInformationCategoryPurpose = Enumeration<string>.FromId<CategoryPurpose>(dto.PaymentTypeInformationCategoryPurpose),
+                    PaymentTypeInformationCategoryPurpose = dto.PaymentTypeInformationCategoryPurpose,
                     InstructingAgent = dto.InstructingAgent,
                     InstructedAgent = dto.InstructedAgent,
                     EndToEndIdentification = dto.EndToEndIdentification,
@@ -116,7 +116,7 @@ public class DbPersistenceService(string filePath)
                     RemittanceInformationStructuredType = dto.RemittanceInformationStructuredType,
                     RemittanceInformationStructuredNumber = dto.RemittanceInformationStructuredNumber,
                     RemittanceInformationUnstructured = dto.RemittanceInformationUnstructured,
-                    Status = Enumeration<string>.FromId<TransactionStatus>(dto.Status)
+                    Status = dto.Status
                 })];
 
             // Map AccountDto to Account

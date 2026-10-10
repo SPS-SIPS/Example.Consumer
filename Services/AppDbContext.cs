@@ -13,10 +13,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<InterBankTransaction>().Property(e => e.SettlementMethod).HasConversion(x => x.Id, x => Enumeration<string>.FromId<SettlementMethods>(x));
-        modelBuilder.Entity<InterBankTransaction>().Property(e => e.PaymentTypeInformationCategoryPurpose).HasConversion(x => x.Id, x => Enumeration<string>.FromId<CategoryPurpose>(x));
         modelBuilder.Entity<InterBankTransaction>().Property(e => e.ChargeBearer).HasConversion(x => x.Id, x => Enumeration<string>.FromId<ChargeBearerType>(x));
-        modelBuilder.Entity<InterBankTransaction>().Property(e => e.Status).HasConversion(x => x.Id, x => Enumeration<string>.FromId<TransactionStatus>(x));
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

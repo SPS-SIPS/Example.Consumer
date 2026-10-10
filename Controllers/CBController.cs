@@ -65,10 +65,10 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
                 t.CreditorAccount,
                 t.CreditorAccountType,
                 t.Purpose,
-                Status = t.Status.Id,
+                Status = t.Status,
                 t.PaymentTypeInformation,
-                PaymentTypeInformationCategoryPurpose = t.PaymentTypeInformationCategoryPurpose.Id,
-                SettlementMethod = t.SettlementMethod.Id,
+                PaymentTypeInformationCategoryPurpose = t.PaymentTypeInformationCategoryPurpose,
+                SettlementMethod = t.SettlementMethod,
                 ChargeBearer = t.ChargeBearer.Id,
                 t.BizMsgIdr,
                 t.MsgDefIdr,
@@ -76,7 +76,7 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
                 FromBIC = t.InstructingAgent,
                 ToBIC = t.InstructedAgent,
                 LocalInstrument = t.PaymentTypeInformation,
-                CategoryPurpose = t.PaymentTypeInformationCategoryPurpose.Id,
+                CategoryPurpose = t.PaymentTypeInformationCategoryPurpose,
             })
             .AsNoTracking()
             .ToListAsync());
@@ -152,7 +152,7 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
 
             return Ok(new StatusResponse
             {
-                Status = txn.Status.Id,
+                Status = txn.Status,
                 AcceptanceDate = txn.AcceptanceDateTime.Date,
                 TxId = request.TxId,
                 EndToEndId = request.EndToEndId,
@@ -172,8 +172,8 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
                 FromBIC = txn.InstructingAgent,
                 ToBIC = txn.InstructedAgent,
                 LocalInstrument = txn.PaymentTypeInformation,
-                CategoryPurpose = txn.PaymentTypeInformationCategoryPurpose.Id,
-                SettlementMethod = txn.SettlementMethod.Id,
+                CategoryPurpose = txn.PaymentTypeInformationCategoryPurpose,
+                SettlementMethod = txn.SettlementMethod,
                 ChargeBearer = txn.ChargeBearer.Id,
                 Date = txn.CreDt.Date,
                 BizMsgIdr = txn.BizMsgIdr,
@@ -210,7 +210,7 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
         {
             return Ok(new TransferResponse
             {
-                Status = txn.Status.Id,
+                Status = txn.Status,
                 Reason = "DUPL",
                 AdditionalInfo = "Transaction already processed",
                 TxId = txn.TransactionIdentification,
@@ -240,10 +240,7 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
             if (!toAccount.Active)
                 return Ok(new TransferResponse { Status = "RJCT", Reason = "AC01", AdditionalInfo = "Creditor account is not active" });
 
-            if (toAccount.Balance < request.Amount)
-                return Ok(new TransferResponse { Status = "RJCT", Reason = "AC02", AdditionalInfo = "Insufficient funds" });
-
-            toAccount.Balance -= request.Amount;
+            toAccount.Balance += request.Amount;
             response.Status = "ACSC";
             response.AcceptanceDate = DateTime.UtcNow;
 
@@ -259,10 +256,10 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
                 CreDt = request.Date.ToUniversalTime(),
                 CreDtTm = request.Date.ToUniversalTime(),
                 NbOfTxs = 1,
-                SettlementMethod = Enumeration<string>.FromId<SettlementMethods>(settlementMethod),
+                SettlementMethod = settlementMethod,
                 ClearingSystem = settlementMethod,
                 PaymentTypeInformation = request.LocalInstrument,
-                PaymentTypeInformationCategoryPurpose = Enumeration<string>.FromId<CategoryPurpose>(categoryPurpose),
+                PaymentTypeInformationCategoryPurpose = categoryPurpose,
                 InstructingAgent = request.FromBIC,
                 InstructedAgent = request.ToBIC,
                 EndToEndIdentification = request.EndToEndId,
@@ -285,7 +282,7 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
                 RemittanceInformationStructuredType = string.Empty,
                 RemittanceInformationStructuredNumber = string.Empty,
                 RemittanceInformationUnstructured = request.RemittanceInformation,
-                Status = TransactionStatus.AcceptedSettlementCompleted
+                Status = "ACSC"
             };
 
             await _broker.InterBankTransactions.AddAsync(newTxn, ct);
@@ -345,10 +342,10 @@ public class CBController(ILogger<CBController> logger, AppDbContext broker) : C
             }
             else
             {
-                txn.Status = Enumeration<string>.FromId<TransactionStatus>(request.Status!);
+                txn.Status = request.Status!;
                 await _broker.SaveChangesAsync(ct);
-                _logger.LogInformation("Transaction {TxId} confirmed with status {Status}", txn.TransactionIdentification, txn.Status.Name);
-                response.Status = txn.Status.Id;
+                _logger.LogInformation("Transaction {TxId} confirmed with status {Status}", txn.TransactionIdentification, txn.Status);
+                response.Status = txn.Status;
             }
             _logger.LogInformation("POST /api/CB/CompletionNotification responded with body: {Response}", System.Text.Json.JsonSerializer.Serialize(response));
             return Ok(response);

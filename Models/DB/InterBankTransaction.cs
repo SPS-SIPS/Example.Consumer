@@ -17,10 +17,10 @@ public sealed class InterBankTransaction
     public DateTimeOffset CreDt { get; set; }
     public DateTimeOffset CreDtTm { get; set; }
     public int NbOfTxs { get; set; } = 1;
-    public SettlementMethods SettlementMethod { get; set; } = default!;
+    public string SettlementMethod { get; set; } = default!;
     public string ClearingSystem { get; set; } = default!;
     public string PaymentTypeInformation { get; set; } = default!;
-    public CategoryPurpose PaymentTypeInformationCategoryPurpose { get; set; } = default!;
+    public string PaymentTypeInformationCategoryPurpose { get; set; } = default!;
     public string InstructingAgent { get; set; } = default!;
     public string InstructedAgent { get; set; } = default!;
     public string EndToEndIdentification { get; set; } = default!;
@@ -45,5 +45,5 @@ public sealed class InterBankTransaction
     public string RemittanceInformationStructuredType { get; set; } = default!;
     public string RemittanceInformationStructuredNumber { get; set; } = default!;
     public string RemittanceInformationUnstructured { get; set; } = default!;
-    public TransactionStatus Status { get; set; } = default!;
+    public string Status { get; set; } = default!;
 }
